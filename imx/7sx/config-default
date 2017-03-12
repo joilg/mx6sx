@@ -1,0 +1,9 @@
+# CONFIG_SOC_IMX50 is not set
+# CONFIG_SOC_IMX51 is not set
+# CONFIG_SOC_IMX53 is not set
+# CONFIG_SOC_IMX6SX is not set
+CONFIG_SOC_IMX7D=y
+# CONFIG_SOC_LS1021A is not set
+
+
+

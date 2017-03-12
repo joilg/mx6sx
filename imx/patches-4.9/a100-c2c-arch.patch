@@ -1,0 +1,80 @@
+--- a/arch/arm/mach-imx/mach-imx6sx.c
++++ b/arch/arm/mach-imx/mach-imx6sx.c
+@@ -35,24 +35,65 @@
+ 	return 0;
+ }
+ 
++static int tja1100_phy_fixup(struct phy_device *dev)
++{
++	pr_info("initialize BroadR-Reach PHY device\n");
++
++	/* Set Speed 100Mb/s */
++	phy_write(dev, 0x00, 0x2100);
++	/* Set Master/slave to Mb/s */
++	// phy_write(dev, 0x18, 0x8);
++	return 0;
++}
++
+ #define PHY_ID_AR8031   0x004dd074
++#define PHY_ID_TJA1100		0x0180dc60
++#define PHY_MASK_TJA1100	0x0ffffff0
++
+ static void __init imx6sx_enet_phy_init(void)
+ {
++
+ 	if (IS_BUILTIN(CONFIG_PHYLIB))
+ 		phy_register_fixup_for_uid(PHY_ID_AR8031, 0xffffffff,
+ 					   ar8031_phy_fixup);
++
++	if (IS_BUILTIN(CONFIG_PHYLIB))
++		phy_register_fixup_for_uid(PHY_ID_TJA1100, PHY_MASK_TJA1100,
++					   tja1100_phy_fixup);
++
+ }
+ 
+-static void __init imx6sx_enet_clk_sel(void)
+-{
++static void __init imx6sx_enet_clk_sel(void) {
+ 	struct regmap *gpr;
++	int ret=0;
+ 
+ 	gpr = syscon_regmap_lookup_by_compatible("fsl,imx6sx-iomuxc-gpr");
+ 	if (!IS_ERR(gpr)) {
++		if (of_machine_is_compatible("fsl,imx6sx-c2c")) {
++			pr_info("**** initialize enec clock for imx6sx-c2c\n");
++			/*external via ENETn_TX_CLK pin: GPR1[14:13] = 11b, GPR1[18:17] = 00b
++			 *internal PLL:					 GPR1[14:13] = 00b			 */
++			ret = regmap_update_bits(gpr, IOMUXC_GPR1,
++					   IMX6SX_GPR1_FEC_CLOCK_MUX_SEL_MASK,0xFFFFFFFF);
++			pr_info("initialize enec clock %x - %x - %x\n",gpr,IOMUXC_GPR1,IMX6SX_GPR1_FEC_CLOCK_MUX_SEL_MASK);
++			if (ret < 0) {
++				pr_err("%s: could not update enec clock sel  mask\n", __func__);
++				return ret;
++				}
++			ret = regmap_update_bits(gpr, IOMUXC_GPR1,
++					   IMX6SX_GPR1_FEC_CLOCK_PAD_DIR_MASK, 0x0);
++			if (ret < 0) {
++				pr_err("%s: could not update enec clock direction\n", __func__);
++				return ret;
++				}
++			}
++		else {
++			pr_info("**** initialize enec clock for imx6sx-sdb\n");
+ 		regmap_update_bits(gpr, IOMUXC_GPR1,
+ 				   IMX6SX_GPR1_FEC_CLOCK_MUX_SEL_MASK, 0);
+ 		regmap_update_bits(gpr, IOMUXC_GPR1,
+ 				   IMX6SX_GPR1_FEC_CLOCK_PAD_DIR_MASK, 0);
++		}
+ 	} else {
+ 		pr_err("failed to find fsl,imx6sx-iomux-gpr regmap\n");
+ 	}
+@@ -68,6 +109,9 @@
+ {
+ 	struct device *parent;
+ 
++
++	pr_info("C2C Hardware detected,    V1.0 15.4.2015\n");
++
+ 	parent = imx_soc_device_init();
+ 	if (parent == NULL)
+ 		pr_warn("failed to initialize soc device\n");

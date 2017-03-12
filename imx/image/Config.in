@@ -1,0 +1,9 @@
+config TARGET_BOOTFS_PARTSIZE
+	int "Boot (SD Card) filesystem partition size (in MB)"
+	depends on TARGET_imx 
+	default 8
+	help
+	    Most imx boards, mainline U-Boot loads the
+	    linux kernel and device tree file from a FAT partition.
+	    The default value of 8 MB should be more than adequate.
+

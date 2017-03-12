@@ -1,0 +1,20 @@
+--- s/arch/arm/boot/dts/Makefile
++++ b/arch/arm/boot/dts/Makefile
+@@ -410,9 +410,15 @@
+ 	imx6qp-sabresd.dtb
+ dtb-$(CONFIG_SOC_IMX6SL) += \
+ 	imx6sl-evk.dtb \
++	imx6sl-pw3.dtb \
+ 	imx6sl-warp.dtb
+ dtb-$(CONFIG_SOC_IMX6SX) += \
++	# imx6sx-sdb-emmc.dtb \
++	imx6sx-sdb-m4.dtb \
++	imx6sx-sdb-btwifi.dtb \
+ 	imx6sx-nitrogen6sx.dtb \
++	imx6sx-sdb.dtb \
++	imx6sx-c2c.dtb \
+ 	imx6sx-sabreauto.dtb \
+ 	imx6sx-sdb-reva.dtb \
+ 	imx6sx-sdb-sai.dtb \
+
+	

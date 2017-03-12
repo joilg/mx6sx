@@ -1,0 +1,13 @@
+--- a/arch/arm/boot/dts/imx6dl-riotboard.dts
++++ b/arch/arm/boot/dts/imx6dl-riotboard.dts
+@@ -19,6 +19,10 @@
+ 		reg = <0x10000000 0x40000000>;
+ 	};
+ 
++	chosen {
++		bootargs = "console=ttymxc1,115200";
++	};
++
+ 	regulators {
+ 		compatible = "simple-bus";
+ 		#address-cells = <1>;

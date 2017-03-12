@@ -1,0 +1,614 @@
+/*
+ * Copyright (C) 2014 Freescale Semiconductor, Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
+/dts-v1/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/input.h>
+#include "imx6sx.dtsi"
+
+/ {
+	model = "Continental i.MX6 SoloX VWBLAN Board";
+	compatible = "fsl,imx6sx-vwblan", "fsl,imx6sx";
+
+	chosen {
+		stdout-path = &uart1;
+	};
+
+	memory {
+		reg = <0x80000000 0x4000000>;
+	};
+
+	/* LEDs
+	Name	gpio		pin				active
+	LED1	GPIO4_IO08	NAND_DATA04 	High
+	LED2	GPIO4_IO10	NAND_DATA06 	High
+	LED3	GPIO6_IO15	SD4_DATA1	 	High
+	LED4	GPIO6_IO14	SD4_DATA0 		High
+	*/
+	leds {
+		compatible = "gpio-leds";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_gpio_leds>;
+
+		led1: sleep {
+			label = "sleep";
+			gpios = <&gpio4 8 1>;
+			default-state = "on";
+			linux,default-trigger = "default-on";
+		   };
+		led2: lan {
+			label = "lan";
+			gpios = <&gpio4 10 1>;
+			default-state = "off";
+			linux,default-trigger = "heartbeat";
+		   };
+		led3: dsrc_tx {
+			label = "dsrc_tx";
+			gpios = <&gpio6 15 1>;
+			default-state = "off";
+			linux,default-trigger = "heartbeat";
+		   };
+		led4: dsrc_rx {
+			label = "dsrc_rx";
+			gpios = <&gpio6 14 1>;
+			default-state = "off";
+			linux,default-trigger = "heartbeat";
+		   };
+	};
+
+	/* GPIOs
+	Name	gpio		pin				active
+	SW1		*** 5V ***
+	SW2		GPIO1_IO10	GPIO1_IO10 		Low
+	SW3		GPIO7_IO10	USB_H_DATA 		Low
+	SW4		GPIO7_IO11	USB_H_STROBE 	Low
+	*/
+	gpio_keys_polled {
+		compatible = "gpio-keys-polled";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_gpio_keys_polled>;
+		poll-interval = <1000>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		sw2 {
+			label = "sw2";
+			gpios = <&gpio1 10 GPIO_ACTIVE_LOW>;
+			linux,code = <49>;
+		};
+		sw3 {
+			label = "sw3";
+			gpios = <&gpio7 10 GPIO_ACTIVE_LOW>;
+			linux,code = <50>;
+		};
+		sw4 {
+			label = "sw4";
+			gpios = <&gpio7 11 GPIO_ACTIVE_LOW>;
+			linux,code = <51>;
+		};
+	};
+
+	pps {
+		compatible = "pps-gpio";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_gpio_pps>;
+		label = "GPS-Timepuls";
+		gpios = <&gpio1 11 GPIO_ACTIVE_HIGH>;
+		assert-falling-edge;
+		status = "okay";
+	};
+
+	
+	
+	/*
+	gpio-keys {
+		compatible = "gpio-keys";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_gpio_keys>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		pps {
+			compatible = "pps-gpio";
+			label = "GPS-Timepuls";
+			gpios = <&gpio1 11 GPIO_ACTIVE_HIGH>;
+			assert-falling-edge;
+			linux,code = <84>;
+			status = "okay";
+		};
+	};
+
+	gpio-reset {
+		compatible = "linux,gpio-reset";
+
+		wlan_reset:wlan {
+			#reset-cells = <0>;
+			gpios = <&gpio2 13 GPIO_ACTIVE_LOW>;
+			asserted-state = <0>;
+			duration-ms = <100>;
+			auto;
+		};
+		gps_reset:gps {
+			#reset-cells = <0>;
+			gpios = <&gpio4 20 GPIO_ACTIVE_LOW>;
+			asserted-state = <0>;
+			duration-ms = <100>;
+		};
+	}
+
+	ethernet_phy_reset:ethernet_phy {
+		#reset-cells = <0>;
+		gpios = <&gpio7 6 GPIO_ACTIVE_LOW>;
+		asserted-state = <0>;
+		duration-ms = <100>;
+	};
+
+*/
+	regulators {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		reg_usb_otg1_vbus: regulator@0 {
+			compatible = "regulator-fixed";
+			reg = <0>;
+			pinctrl-names = "default";
+			regulator-name = "usb_otg1_vbus";
+			regulator-min-microvolt = <5000000>;
+			regulator-max-microvolt = <5000000>;
+			regulator-always-on;
+		};
+
+		reg_usb_otg2_vbus: regulator@1 {
+			compatible = "regulator-fixed";
+			reg = <1>;
+			pinctrl-names = "default";
+			regulator-name = "usb_otg2_vbus";
+			regulator-min-microvolt = <5000000>;
+			regulator-max-microvolt = <5000000>;
+			regulator-always-on;
+		};
+
+		reg_psu_5v: regulator@2 {
+			compatible = "regulator-fixed";
+			reg = <2>;
+			regulator-name = "PSU-5V0";
+			regulator-min-microvolt = <5000000>;
+			regulator-max-microvolt = <5000000>;
+		};
+
+		reg_peri_3v3: regulator@3 {
+			compatible = "regulator-fixed";
+			reg = <3>;
+			pinctrl-names = "default";
+			regulator-name = "peri_3v3";
+			regulator-min-microvolt = <3300000>;
+			regulator-max-microvolt = <3300000>;
+			regulator-always-on;
+		};
+
+		reg_enet_3v3: regulator@4 {
+			compatible = "regulator-fixed";
+			reg = <4>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&pinctrl_enet_3v3>;
+			regulator-name = "enet_3v3";
+			regulator-min-microvolt = <3300000>;
+			regulator-max-microvolt = <3300000>;
+			gpios = <&gpio2 6 GPIO_ACTIVE_LOW>;
+		};
+
+		wlreg_on: fixedregulator@100 {
+			compatible = "regulator-fixed";
+			regulator-min-microvolt = <3300000>;
+			regulator-max-microvolt = <3300000>;
+			regulator-name = "wlreg_on";
+			gpio = <&gpio2 13 0x04>;
+			startup-delay-us = <0x11170>;
+			regulator-always-on;
+			enable-active-high;
+		};
+	};
+};
+
+/*
+&fec1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_enet1>;
+	phy-supply = <&reg_enet_3v3>;
+	phy-mode = "rgmii";
+	status = "okay";
+};
+*/
+
+&fec2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_enet2>;
+	pinctrl-assert-gpios = <&gpio5 14 GPIO_ACTIVE_LOW>;
+	phy-supply = <&reg_enet_3v3>;
+	phy-mode = "rmii";
+	phy-id = <0>;
+	phy-handle = <&ethphy2>;
+	status = "okay";
+
+	mdio {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		ethphy1: ethernet-phy@1 {
+			reg = <1>;
+			max-speed = <100>;
+		};
+
+		ethphy2: ethernet-phy@2 {
+			reg = <0>;
+			max-speed = <100>;
+		};
+	};
+};
+
+/*
+&snvs_poweroff {
+	 status = "okay";
+};
+*/
+
+/*
+&qspi2 {
+	ddrsmp=<1>;
+	fsl,qspi-has-second-chip;
+    spi-max-frequency = <66000000>;
+	spi-max-frequency = <29000000>;
+	interrupts = <GIC_SPI 107 IRQ_TYPE_LEVEL_HIGH>, <GIC_SPI 109 IRQ_TYPE_LEVEL_HIGH>;
+	reg = <0x021e4000 0x4000>, <0x40000000 0x10000000>;
+	fsl,nor-size = <0x1000000>;
+
+	flash0: s25fl128s@0 {
+		reg = <0>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "spansion,s25fl128s";
+		spi-max-frequency = <66000000>;
+    };
+
+    flash1: s25fl128s@1 {
+            reg = <1>;
+            #address-cells = <1>;
+            #size-cells = <1>;
+            compatible = "spansion,s25fl128s";
+            spi-max-frequency = <66000000>;
+    };
+}
+*/
+
+
+&qspi2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_qspi2>;
+	status = "okay";
+	fsl,nor-size = <0x04000000>;
+
+    flash0: s25fl512s@0 {
+		reg = <0>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "spansion,s25fl512s";
+		spi-max-frequency = <66000000>;
+
+		partition@00000000 {
+			label = "uboot";
+			reg = <0x0000000 0x0180000>; /* 1536KB */
+		};
+
+		partition@0180000 {
+			label = "uboot-env";
+			reg = <0x0180000 0x00040000>; /* 256KB */
+		};
+
+		partition@01C0000 {
+			label = "m4boot";
+			reg = <0x01C0000 0x00040000>; /* 256KB */
+		};
+
+		partition@0200000 {
+			label = "kernel";
+			reg = <0x0200000 0x00300000>; /* 3MB */
+		};
+
+		partition@0500000 {
+			label = "system";
+			reg = <0x0500000 0x03b00000>; /* -- */
+		};
+	};
+};
+
+/*
+&ecspi1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_ecspi1>;
+	status = "okay";
+};
+*/
+
+&uart1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart1>;
+	status = "okay";
+};
+
+/* for IMX GPS-Uart */
+&uart2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart2>;
+	status = "okay";
+};
+
+&uart5 { /* for IMX Debug-Uart */
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart5>;
+	fsl,uart-has-rtscts;
+	status = "okay";
+};
+
+/*  pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_usb_otg1_id>;
+	dr_mode = "peripheral";
+
+
+*/
+
+&usbotg1 {
+	vbus-supply = <&reg_usb_otg1_vbus>;
+	pinctrl-names = "default";
+/*	pinctrl-0 = <&pinctrl_usb_otg1_id>; */
+	dr_mode = "peripheral";
+/*	dr_mode = "host"; */
+	status = "okay";
+};
+
+&usbotg2 {
+	vbus-supply = <&reg_usb_otg2_vbus>;
+	dr_mode = "peripheral";
+	status = "okay";
+};
+
+&usdhc2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_usdhc2>;
+	no-1-8-v;
+	wlan-supply = <&wlreg_on>;
+	keep-power-in-suspend;
+	cap-power-off-card;
+	enable-sdio-wakeup;
+	max-frequency = <20000000>;
+	bus-width = <4>;
+	status = "okay";
+
+	mcmdhd_wlan_0: mcmdhd_wlan@0 {
+		compatible = "marvell,88w8887";
+		wlreg_on-supply = <&wlreg_on>;
+	};
+
+	mwifiex: mwifiex@1 {
+		compatible = "marvell,sd8xxx";
+		reg = <1>;
+		interrupt-parent = <&gpio2>;
+		interrupts = <10 IRQ_TYPE_LEVEL_LOW>;
+		marvell,caldata_00_txpwrlimit_2g_cfg_set = /bits/ 8 <
+	0x01 0x00 0x06 0x00 0x08 0x02 0x89 0x01>;
+		marvell,wakeup-pin = <1>;
+	};
+	
+	btmrvl: btmrvl@2 {
+		compatible = "marvell,sd8xxx-bt";
+		reg = <2>;
+		interrupt-parent = <&gpio2>;
+		interrupts = <11 IRQ_TYPE_LEVEL_LOW>;
+		btmrvl,cal-data = /bits/ 8 <
+			0x37 0x01 0x1c 0x00 0xff 0xff 0xff 0xff 0x01 0x7f 0x04 0x02
+			0x00 0x00 0xba 0xce 0xc0 0xc6 0x2d 0x00 0x00 0x00 0x00 0x00
+			0x00 0x00 0xf0 0x00>;
+		btmrvl,wakeup-pin = <0x0d>;
+		btmrvl,wakeup-gap = <0x64>;
+	};
+};
+
+/*
+	non-removable;
+	broken-cd;
+	wifi-host;	* pull in card detect mechanism *
+	max-frequency = <40000000>;
+	bus-width = <4>;
+	cap-sdio-irq;
+	cap-sd-highspeed;
+	sd-uhs-sdr25;
+	sd-uhs-sdr50;
+	sd-uhs-sdr104;
+*/
+/*
+CONFIG bits definition:
+	PAD_CTL_HYS                     (1 << 16) 0x80000  no pad control
+	PAD_CTL_PUS_100K_DOWN           (0 << 14) 0x0....
+	PAD_CTL_PUS_47K_UP              (1 << 14) 0x0....
+	PAD_CTL_PUS_100K_UP             (2 << 14) 0x0....
+	PAD_CTL_PUS_22K_UP              (3 << 14) 0x0....
+
+	PAD_CTL_PUE                     (1 << 13) 0x.4...	Pull Keep Select
+	PAD_CTL_PKE                     (1 << 12) 0x.2...	Pull Keep Enable
+	PAD_CTL_ODE                     (1 << 11) 0x.1...    open Drain Mode
+
+	PAD_CTL_SPEED_LOW               (0 << 6) 0x...0.
+	PAD_CTL_SPEED_MED               (1 << 6) 0x...B.
+	PAD_CTL_SPEED_HIGH              (3 << 6) 0x...C.
+
+	PAD_CTL_DSE_DISABLE             (0 << 3)
+	PAD_CTL_DSE_260ohm              (1 << 3)
+	PAD_CTL_DSE_130ohm              (2 << 3)
+	PAD_CTL_DSE_87ohm               (3 << 3)
+	PAD_CTL_DSE_65ohm               (4 << 3)
+	PAD_CTL_DSE_52ohm               (5 << 3)
+	PAD_CTL_DSE_43ohm               (6 << 3)
+	PAD_CTL_DSE_37ohm               (7 << 3)
+
+	PAD_CTL_SRE_FAST                (1 << 0)
+	PAD_CTL_SRE_SLOW                (0 << 0)
+
+
+Bit(s) 	Field 	Description 	Remarks
+16 		HYS 	0 - CMOS input
+				1 - Schmitt trigger input
+15-14 	PUS 	00 - 100 kOhm Pull Down
+				01 - 47 kOhm Pull Up
+				10 - 100 kOhm Pull Up
+				11 - 22 kOhm Pull Up
+13 		PUE 	0 - Keeper enable
+				1 - Pull enable 	Selection between keeper and pull up/down function
+12 		PKE 	0 - Pull/Keeper Disabled
+				1 - Pull/Keeper Enabled Enable 	enable keeper or pull up/down function
+
+11 		ODE 	0 - Output is CMOS
+				1 - Output is open drain
+
+7-6 	SPEED 	00 - Low (50 MHz)
+				01 - Medium (100,150 MHz)
+				10 - Medium (100,150 MHz)
+				11 - High (100,150,200 MHz)
+5-3 	DSE 	000 - output driver disabled (Hi Z)
+				001 - 150 Ohm (240 Ohm if pad is DDR)
+				010 - 75 Ohm (120 Ohm if pad is DDR)
+				011 - 50 Ohm (80 Ohm if pad is DDR)
+				100 - 37 Ohm 60 hm if pad is DDR)
+				101 - 30 Ohm (48 Ohm if pad is DDR)
+				110 - 25 Ohm
+				111 - 20 Ohm (34 Ohm if pad is DDR)
+0 		SRE 	0 - Slow Slew Rate
+				1 - Fast Slew Rate
+
+		mmc:clk	  0x17059  1.01 1 0.0000.01 01.1 00 1    
+                     0x04009  0.00 1 0.0000.00 00.1 00 0   
+			cmd/D0	 0x1B069  1.10.11.0000.01.10.1 00 1 
+							HYS	PUS	PUE	PKE	ODE	xxx	SPE	DSE	xx	SRC	
+		wlan_PDN: 0x13069     1	00	1	1	0	000	01	101	00	1
+		*/
+
+
+&iomuxc {
+	imx6x-vwblan {
+		pinctrl_gpio_leds: gpioledsgrp {
+		   fsl,pins = <
+				MX6SX_PAD_NAND_DATA04__GPIO4_IO_8     0x1b0b0
+				MX6SX_PAD_NAND_DATA06__GPIO4_IO_10    0x1b0b0
+				MX6SX_PAD_SD4_DATA1__GPIO6_IO_15      0x1b0b0
+				MX6SX_PAD_SD4_DATA0__GPIO6_IO_14      0x1b0b0
+					   >;
+		 };
+
+		 pinctrl_gpio_keys_polled: gpio_keypolledgrp {
+			fsl,pins = <
+				MX6SX_PAD_RGMII1_TD0__GPIO5_IO_6		0x17059
+				MX6SX_PAD_GPIO1_IO10__GPIO1_IO_10		0x17059
+				MX6SX_PAD_USB_H_DATA__GPIO7_IO_10		0x17059
+				MX6SX_PAD_USB_H_STROBE__GPIO7_IO_11		0x17059
+
+			>;
+		};
+		
+		/* GPS Time Pulse  */
+		pinctrl_gpio_pps: gpio_pps {
+			fsl,pins = <
+				MX6SX_PAD_GPIO1_IO11__GPIO1_IO_11	0x130b0		/* 100k Pull down */
+			>;
+		};
+
+		pinctrl_enet_3v3: enet3v3grp {
+			fsl,pins = <
+				MX6SX_PAD_ENET2_COL__GPIO2_IO_6         0x80000000
+			>;
+		};
+
+		pinctrl_enet2: enet2grp {
+			fsl,pins = <
+				MX6SX_PAD_ENET1_COL__ENET2_MDC 0xa0b1
+				MX6SX_PAD_ENET1_CRS__ENET2_MDIO 0xa0b1
+				MX6SX_PAD_RGMII2_RX_CTL__ENET2_RX_EN 0x3081
+				MX6SX_PAD_RGMII2_RD0__ENET2_RX_DATA_0  0x3081
+				MX6SX_PAD_RGMII2_RD1__ENET2_RX_DATA_1  0x3081
+				MX6SX_PAD_RGMII2_TD0__ENET2_TX_DATA_0 0xa0b1
+				MX6SX_PAD_RGMII2_TD1__ENET2_TX_DATA_1 0xa0b1
+				MX6SX_PAD_RGMII2_TX_CTL__ENET2_TX_EN 0xa0b1
+				MX6SX_PAD_ENET2_TX_CLK__ENET2_REF_CLK2 0x3081
+				MX6SX_PAD_RGMII2_RD2__GPIO5_IO_14 0x80000000
+			>;
+		};
+
+        /**  DEBUG UART   /dev/ttymxc0 **/
+		pinctrl_uart1: uart1grp {
+			fsl,pins = <
+				MX6SX_PAD_GPIO1_IO04__UART1_TX		0x1b0b1
+				MX6SX_PAD_GPIO1_IO05__UART1_RX		0x1b0b1
+			>;
+		};
+
+		/**  GPS UART   /dev/ttymxc1 **/
+		pinctrl_uart2: uart2grp {
+			fsl,pins = <
+				MX6SX_PAD_GPIO1_IO06__UART2_TX		0x1b0b1
+				MX6SX_PAD_GPIO1_IO07__UART2_RX		0x1b0b1
+				MX6SX_PAD_GPIO1_IO03__GPIO1_IO_3	0x00818				/* GPS Reset open Drain*/
+			>;
+		};
+		/**  Bluetooth UART   /dev/ttymxc4 **/
+		pinctrl_uart5: uart5grp {
+			fsl,pins = <
+				MX6SX_PAD_SD4_DATA4__UART5_RX		0x1b0b1			/* 100K pull down */
+				MX6SX_PAD_SD4_DATA5__UART5_TX		0x1b0b1
+				MX6SX_PAD_SD4_DATA6__UART5_RTS_B	0x1b0b1
+				MX6SX_PAD_SD4_DATA7__UART5_CTS_B	0x1b0b1
+			>;
+		};
+
+		pinctrl_qspi2: qspi2grp {
+			fsl,pins = <
+				MX6SX_PAD_NAND_WP_B__QSPI2_A_DATA_0	 	0x70f1
+				MX6SX_PAD_NAND_READY_B__QSPI2_A_DATA_1	0x70f1
+				MX6SX_PAD_NAND_CE0_B__QSPI2_A_DATA_2	0x70f1
+				MX6SX_PAD_NAND_CE1_B__QSPI2_A_DATA_3	0x70f1
+				MX6SX_PAD_NAND_ALE__QSPI2_A_SS0_B		0x70f1
+				MX6SX_PAD_NAND_CLE__QSPI2_A_SCLK		0x70f1
+
+				MX6SX_PAD_NAND_DATA01__QSPI2_B_DATA_0   0x70f1
+				MX6SX_PAD_NAND_DATA00__QSPI2_B_DATA_1   0x70f1
+				MX6SX_PAD_NAND_WE_B__QSPI2_B_DATA_2     0x70f1
+				MX6SX_PAD_NAND_RE_B__QSPI2_B_DATA_3     0x70f1
+				MX6SX_PAD_NAND_DATA02__QSPI2_B_SCLK     0x70f1
+				MX6SX_PAD_NAND_DATA03__QSPI2_B_SS0_B    0x70f1
+			>;
+		};
+
+
+		pinctrl_usb_otg1_id: usbotg1idgrp {
+			fsl,pins = <
+				MX6SX_PAD_GPIO1_IO10__ANATOP_OTG1_ID	0x17059
+			>;
+		};
+
+		pinctrl_usdhc2: usdhc2grp {
+			fsl,pins = <
+				MX6SX_PAD_SD2_CMD__USDHC2_CMD		0x17069
+				MX6SX_PAD_SD2_CLK__USDHC2_CLK		0x04008
+				MX6SX_PAD_SD2_DATA0__USDHC2_DATA0	0x17069
+				MX6SX_PAD_SD2_DATA1__USDHC2_DATA1	0x17069
+				MX6SX_PAD_SD2_DATA2__USDHC2_DATA2	0x17069
+				MX6SX_PAD_SD2_DATA3__USDHC2_DATA3	0x17069
+				MX6SX_PAD_KEY_COL3__GPIO2_IO_13		0x13069   /* WL_REG_ON */
+
+			>;
+		};
+	};
+};

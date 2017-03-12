@@ -1,0 +1,10 @@
+# setenv devnum 0
+# setenv devtype mmc
+# setenv fdt_addr 0x13000000
+setenv bootargs console=ttymxc1,115200n8 rootwait root=PARTUUID=${btpart} net.ifnames=0 rootfstype=ext4
+load ${devtype} ${devnum}:1 ${fdt_addr} ${fdtfile}
+load ${devtype} ${devnum}:1 ${loadaddr} zImage
+part uuid ${devtype} ${devnum}:2 btpart
+if run loadfdt; then echo kernel_loaded ; if run loadkernel; then echo fdt_loaded; bootm ${loadaddr} - ${fdt_addr} ; else echo fail1 ; fi ; fi ; echo failed to boot'
+
+

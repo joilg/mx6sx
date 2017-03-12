@@ -1,0 +1,4 @@
+::sysinit:/etc/init.d/rcS S boot
+::shutdown:/etc/init.d/rcS K shutdown
+ttymxc0::respawn:/sbin/getty -L ttymxc0 115200 linux
+ttymxc0::askfirst:/bin/ash --login
